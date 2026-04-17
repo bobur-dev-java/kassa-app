@@ -9,5 +9,5 @@ import java.util.List;
 
 @Service
 public interface ProductTransactionService {
-    HttpApiResponse<Long> makeProdTransaction(ProductTransaction productTransaction, List<Product> products);
+    Long makeProdTransaction(ProductTransaction productTransaction, List<Product> products);
 }

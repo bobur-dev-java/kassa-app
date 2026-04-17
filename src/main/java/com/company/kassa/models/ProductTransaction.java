@@ -28,7 +28,7 @@ public class ProductTransaction extends MultiTenant {
     @Column(nullable = false)
     private LocalDate transactionDate;
 
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 
     private Boolean isCompleted;
 

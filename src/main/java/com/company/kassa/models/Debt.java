@@ -21,7 +21,7 @@ public class Debt extends MultiTenant {
     @ManyToOne(fetch = FetchType.LAZY)
     private AuthUser fromUser;
 
-    private BigDecimal nonActive;
+    private BigDecimal nonActive = BigDecimal.ZERO;
 
-    private BigDecimal activeAmount;
+    private BigDecimal activeAmount = BigDecimal.ZERO;
 }

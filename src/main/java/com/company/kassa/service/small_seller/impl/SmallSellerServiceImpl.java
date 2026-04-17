@@ -75,8 +75,15 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .yattId(userSession.yattId())
                 .build();
 
-        return productTransactionService.makeProdTransaction(productTransaction,
+        Long id = productTransactionService.makeProdTransaction(productTransaction,
                 products.stream().map(productMapper::toEntity).toList());
+
+        return HttpApiResponse.<Long>builder()
+                .success(true)
+                .status(201)
+                .message("ok")
+                .data(id)
+                .build();
     }
 
     @Transactional
@@ -94,7 +101,13 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .yattId(userSession.yattId())
                 .build();
 
-        return moneyTransactionService.makeMoneyTransaction(transaction);
+        Long id = moneyTransactionService.makeMoneyTransaction(transaction);
+        return HttpApiResponse.<Long>builder()
+                .success(true)
+                .status(201)
+                .message("ok")
+                .data(id)
+                .build();
     }
 
     @Transactional
