@@ -114,8 +114,11 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Override
     public HttpApiResponse<Long> kassaCreate(KassaCreateRequest request) {
         Kassa kassa = kassaMapper.toEntity(request);
+        BigDecimal totalAmount =
+                kassa.getCard().add(kassa.getCash()).add(kassa.getTerminal()); // we can optimize
         kassa.setYattId(userSession.yattId());
         kassa.setOwner(userSession.getCurrentUser());
+        kassa.setTotaAmount(totalAmount);
 
         Kassa saved = kassaRepository.save(kassa);
 

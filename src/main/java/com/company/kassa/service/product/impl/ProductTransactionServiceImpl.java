@@ -29,6 +29,7 @@ public class ProductTransactionServiceImpl implements ProductTransactionService 
                 .map(product -> {
                     product.calculateTotalPrice(); // Set product's internal total
                     product.setProductTransaction(productTransaction); // Link to transaction
+                    product.setYattId(userSession.yattId());
                     return product.getTotalPrice(); // Return for summing
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -49,7 +50,7 @@ public class ProductTransactionServiceImpl implements ProductTransactionService 
     }
 
     private void createOrUpdateDebit(ProductTransaction savedTx) {
-        Long userId = savedTx.getToUser().getId();
+        Long userId = savedTx.getFromUser().getId();
 
         Debt debt = debitRepository.findByUserId(userId, userSession.yattId())
                 .map(existing -> {

@@ -16,7 +16,7 @@ public class UserSession {
     private UserPrincipal getPrincipal() {
         Authentication auth = SecurityContextHolder
                 .getContext().getAuthentication();
-        if (auth == null || !(auth.getDetails() instanceof UserPrincipal user)) {
+        if (auth == null || !(auth.getPrincipal() instanceof UserPrincipal user)) {
             throw new RuntimeException("No authenticated user found in session");
         }
 
