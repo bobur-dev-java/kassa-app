@@ -15,6 +15,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 public class AuthUser extends MultiTenant {
+    private String fullName;
+
     @Column(nullable = false)
     private String username;
 

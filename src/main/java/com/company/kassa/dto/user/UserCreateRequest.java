@@ -13,6 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class UserCreateRequest implements Serializable {
+    private String fullName;
     @NotBlank
     private String username;
     @NotBlank

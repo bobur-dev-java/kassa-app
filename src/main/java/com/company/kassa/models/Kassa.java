@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -22,12 +23,15 @@ public class Kassa extends MultiTenant {
     private AuthUser owner;
 
     private BigDecimal terminal;
-    private BigDecimal click;
+    private BigDecimal card;
+    private BigDecimal cash;
 
     private BigDecimal totaAmount;
+
+    private LocalDate kassaDate;
 
     @Column(length = 1000)
     private String comment;
 
-    private boolean isCompleted;
+    private Boolean isCompleted;
 }

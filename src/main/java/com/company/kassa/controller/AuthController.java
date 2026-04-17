@@ -1,9 +1,9 @@
 package com.company.kassa.controller;
 
-import com.company.kassa.dto.AccessTokenRequest;
+import com.company.kassa.dto.auth.AccessTokenRequest;
 import com.company.kassa.dto.HttpApiResponse;
-import com.company.kassa.dto.LoginRequest;
-import com.company.kassa.dto.LoginResponse;
+import com.company.kassa.dto.auth.LoginRequest;
+import com.company.kassa.dto.auth.LoginResponse;
 import com.company.kassa.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,7 @@
 package com.company.kassa.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import com.company.kassa.models.enums.MoneyType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,14 +19,22 @@ import java.time.LocalDate;
 @Entity
 public class MoneyTransaction extends MultiTenant {
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private AuthUser fromUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private AuthUser toUser;
 
+    @Column(nullable = false)
     private LocalDate transactionDate;
 
+    @Column(nullable = false)
     private BigDecimal amount;
 
-    private boolean isCompleted;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MoneyType moneyType;
+
+    private Boolean isCompleted;
 }

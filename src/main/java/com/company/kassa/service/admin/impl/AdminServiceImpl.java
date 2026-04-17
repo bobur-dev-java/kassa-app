@@ -7,8 +7,10 @@ import com.company.kassa.dto.user.UserCreateRequest;
 import com.company.kassa.dto.yatt.YattCreateRequest;
 import com.company.kassa.models.AuthUser;
 import com.company.kassa.models.YaTT;
+import com.company.kassa.models.YaTTUsers;
 import com.company.kassa.repository.AuthUserRepository;
 import com.company.kassa.repository.YaTTRepository;
+import com.company.kassa.repository.YaTTUsersRepository;
 import com.company.kassa.service.admin.AdminService;
 import com.company.kassa.service.auth.mapper.AuthMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,6 +27,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserSession session;
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
+    private final YaTTUsersRepository yaTTUsersRepository;
 
     @Transactional
     @Override
@@ -52,7 +55,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     @Override
     public HttpApiResponse<Long> addUser(Long yattId, UserCreateRequest request) {
-        yaTTRepository.findByIdAndDeletedAtIsNull(yattId)
+        YaTT yaTT = yaTTRepository.findByIdAndDeletedAtIsNull(yattId)
                 .orElseThrow(() -> new EntityNotFoundException("yatt.not.found"));
 
         AuthUser user = authMapper.toEntity(request);
@@ -60,6 +63,14 @@ public class AdminServiceImpl implements AdminService {
         user.setYattId(yattId);
 
         AuthUser saved = authUserRepository.save(user);
+
+        YaTTUsers userRole = YaTTUsers.builder()
+                .role(request.getRole())
+                .user(saved)
+                .yaTT(yaTT)
+                .build();
+
+        yaTTUsersRepository.save(userRole);
 
         return HttpApiResponse.<Long>builder()
                 .success(true)
