@@ -14,4 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByTransactionId(Long transactionId);
 
     List<Product> findAllByProductTransactionIdIn(List<Long> transactionIds);
+
+    @Query("select p from Product p where p.productTransaction.id=:id and p.yattId=:yattId and p.deletedAt is null")
+    List<Product> getProductByProductTransaction(Long id, Long yattId);
 }

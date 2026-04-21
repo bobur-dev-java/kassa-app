@@ -1,10 +1,7 @@
 package com.company.kassa.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -33,5 +30,6 @@ public class Kassa extends MultiTenant {
     @Column(length = 1000)
     private String comment;
 
-    private Boolean isCompleted;
+    @Builder.Default
+    private Boolean isCompleted=false;
 }

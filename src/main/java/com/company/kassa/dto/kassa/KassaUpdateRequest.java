@@ -10,12 +10,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class KassaCreateRequest {
-    private Long ownerId;
+public class KassaUpdateRequest {
     private BigDecimal terminal;
     private BigDecimal card;
     private BigDecimal cash;
-    private String comment;
     private LocalDate kassaDate;
+    private String comment;
+    private Boolean isCompleted;
 
 }

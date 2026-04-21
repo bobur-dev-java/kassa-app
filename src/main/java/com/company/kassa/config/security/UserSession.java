@@ -1,7 +1,9 @@
 package com.company.kassa.config.security;
 
 import com.company.kassa.models.AuthUser;
+import com.company.kassa.models.enums.YaTTUserRole;
 import com.company.kassa.repository.AuthUserRepository;
+import com.company.kassa.repository.YaTTUsersRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserSession {
     private final AuthUserRepository authUserRepository;
+    private final YaTTUsersRepository userRoleRepo;
 
     private UserPrincipal getPrincipal() {
         Authentication auth = SecurityContextHolder
@@ -40,5 +43,10 @@ public class UserSession {
         Long yattId = yattId();
         return authUserRepository.findByIdAndYattIdAndDeletedAtIsNull(userId, yattId).
                 orElseThrow(() -> new EntityNotFoundException("user.not.found"));
+    }
+
+    public YaTTUserRole getCurrentUserRole() {
+        return userRoleRepo.findYattUserRole(getCurrentUser().getUsername(), yattId())
+                .orElseThrow(() -> new EntityNotFoundException("user.role.not.found")).getRole();
     }
 }

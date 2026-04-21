@@ -4,11 +4,14 @@ import com.company.kassa.dto.HttpApiResponse;
 import com.company.kassa.dto.kassa.KassaCreateRequest;
 import com.company.kassa.dto.kassa.KassaFilter;
 import com.company.kassa.dto.kassa.KassaResponse;
+import com.company.kassa.dto.kassa.KassaUpdateRequest;
 import com.company.kassa.dto.money.MoneyTransactionFilter;
 import com.company.kassa.dto.money.MoneyTransactionResponse;
+import com.company.kassa.dto.money.MoneyTransactionUpdate;
 import com.company.kassa.dto.product.ProductTransactionFilter;
 import com.company.kassa.dto.product.ProductTransactionRequest;
 import com.company.kassa.dto.product.ProductTransactionResponse;
+import com.company.kassa.dto.product.ProductTransactionUpdate;
 import com.company.kassa.dto.user.UserPasswordUpdate;
 import com.company.kassa.dto.user.UserResponse;
 import com.company.kassa.dto.user.UserUpdateRequest;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -48,4 +52,16 @@ public interface SmallSellerService {
     HttpApiResponse<Boolean> updateProfilePassword(UserPasswordUpdate request);
 
     HttpApiResponse<List<UserResponse>> getAllUsersInYatt();
+
+    HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id);
+
+    HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id);
+
+    HttpApiResponse<KassaResponse> getKassaById(Long id);
+
+    HttpApiResponse<Long> updateProductTransaction(ProductTransactionUpdate request, Long id) throws AccessDeniedException;
+
+    HttpApiResponse<Long> updateMoneyTransaction(MoneyTransactionUpdate request, Long id) throws AccessDeniedException;
+
+    HttpApiResponse<Long> updateKassaById(KassaUpdateRequest request, Long id);
 }

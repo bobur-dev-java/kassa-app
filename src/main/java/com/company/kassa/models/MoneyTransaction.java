@@ -2,10 +2,7 @@ package com.company.kassa.models;
 
 import com.company.kassa.models.enums.MoneyType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -36,5 +33,6 @@ public class MoneyTransaction extends MultiTenant {
     @Column(nullable = false)
     private MoneyType moneyType;
 
-    private Boolean isCompleted;
+    @Builder.Default
+    private Boolean isCompleted=false;
 }

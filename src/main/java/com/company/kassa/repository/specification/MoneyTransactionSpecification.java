@@ -33,7 +33,7 @@ public record MoneyTransactionSpecification(MoneyTransactionFilter filter) imple
         }
 
         if (filter.getFromUserId() != null) {
-            predicates.add(cb.equal(root.get("fromUser").get("id"), filter.getToUserId()));
+            predicates.add(cb.equal(root.get("fromUser").get("id"), filter.getFromUserId()));
         }
         if (filter.getIsCompleted() != null) {
             predicates.add(cb.equal(root.get("isCompleted"), filter.getIsCompleted()));
