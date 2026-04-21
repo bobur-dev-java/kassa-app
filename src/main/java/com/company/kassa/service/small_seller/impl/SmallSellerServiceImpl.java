@@ -116,7 +116,6 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Transactional
     @Override
     public HttpApiResponse<Long> kassaCreate(KassaCreateRequest request) {
-        request.setOwnerId(null); // session id set qilinadi
         Kassa kassa = kassaMapper.toEntity(request);
         BigDecimal totalAmount =
                 kassa.getCard().add(kassa.getCash()).add(kassa.getTerminal()); // we can optimize

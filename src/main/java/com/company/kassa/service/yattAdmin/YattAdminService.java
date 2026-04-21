@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,15 +39,15 @@ public interface YattAdminService {
 
     HttpApiResponse<Page<KassaResponse>> getKassaFilter(KassaFilter kassaFilter, Pageable pageable);
 
-    byte[] getKassaFilterExcel(KassaFilter kassaFilter);
+    byte[] getKassaFilterExcel(KassaFilter kassaFilter) throws IOException;
 
     HttpApiResponse<Page<ProductTransactionResponse>> getProductTransactions(ProductTransactionFilter productTransactionFilter, Pageable pageable);
 
-    byte[] getProductTransactionExcel(ProductTransactionFilter productTransactionFilter);
+    byte[] getProductTransactionExcel(ProductTransactionFilter productTransactionFilter) throws IOException;
 
     HttpApiResponse<Page<MoneyTransactionResponse>> getMoneyTransactions(MoneyTransactionFilter moneyTransactionFilter, Pageable pageable);
 
-    byte[] getMoneyTransactionExcel(MoneyTransactionFilter moneyTransactionFilter);
+    byte[] getMoneyTransactionExcel(MoneyTransactionFilter moneyTransactionFilter) throws IOException;
 
     HttpApiResponse<List<UserResponse>> getAllUsersInYatt();
 
