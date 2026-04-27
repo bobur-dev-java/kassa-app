@@ -14,6 +14,7 @@ import com.company.kassa.dto.product.ProductTransactionRequest;
 import com.company.kassa.dto.product.ProductTransactionResponse;
 import com.company.kassa.dto.product.ProductTransactionUpdate;
 import com.company.kassa.dto.user.UserPasswordUpdate;
+import com.company.kassa.dto.user.UserProfileResponse;
 import com.company.kassa.dto.user.UserResponse;
 import com.company.kassa.dto.user.UserUpdateRequest;
 import com.company.kassa.service.small_seller.SmallSellerService;
@@ -63,6 +64,12 @@ public class SmallSellerController {
     @PostMapping("/kassa")
     public ResponseEntity<HttpApiResponse<Long>> kassaCreate(@Valid @RequestBody KassaCreateRequest request) {
         HttpApiResponse<Long> response = smallSellerService.kassaCreate(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<HttpApiResponse<UserProfileResponse>> getProfile() {
+        HttpApiResponse<UserProfileResponse> response = smallSellerService.getProfile();
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

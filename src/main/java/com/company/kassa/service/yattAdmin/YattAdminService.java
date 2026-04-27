@@ -11,10 +11,7 @@ import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.product.ProductTransactionFilter;
 import com.company.kassa.dto.product.ProductTransactionRequest;
 import com.company.kassa.dto.product.ProductTransactionResponse;
-import com.company.kassa.dto.user.UserCreateRequest;
-import com.company.kassa.dto.user.UserPasswordUpdate;
-import com.company.kassa.dto.user.UserResponse;
-import com.company.kassa.dto.user.UserUpdateRequest;
+import com.company.kassa.dto.user.*;
 import com.company.kassa.models.enums.MoneyType;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -57,5 +54,7 @@ public interface YattAdminService {
 
     HttpApiResponse<Page<DebitResponse>> getDebits(DebitFilter filter, Pageable of);
 
-    byte[] getDebitsExcel(DebitFilter filter);
+    byte[] getDebitsExcel(DebitFilter filter) throws IOException;
+
+    HttpApiResponse<UserProfileResponse> getProfile();
 }

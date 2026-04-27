@@ -13,6 +13,7 @@ import com.company.kassa.dto.product.ProductTransactionRequest;
 import com.company.kassa.dto.product.ProductTransactionResponse;
 import com.company.kassa.dto.product.ProductTransactionUpdate;
 import com.company.kassa.dto.user.UserPasswordUpdate;
+import com.company.kassa.dto.user.UserProfileResponse;
 import com.company.kassa.dto.user.UserResponse;
 import com.company.kassa.dto.user.UserUpdateRequest;
 import com.company.kassa.models.enums.MoneyType;
@@ -64,4 +65,6 @@ public interface SmallSellerService {
     HttpApiResponse<Long> updateMoneyTransaction(MoneyTransactionUpdate request, Long id) throws AccessDeniedException;
 
     HttpApiResponse<Long> updateKassaById(KassaUpdateRequest request, Long id);
+
+    HttpApiResponse<UserProfileResponse> getProfile();
 }

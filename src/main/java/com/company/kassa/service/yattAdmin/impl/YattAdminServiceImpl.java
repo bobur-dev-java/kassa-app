@@ -10,10 +10,7 @@ import com.company.kassa.dto.kassa.KassaResponse;
 import com.company.kassa.dto.money.MoneyTransactionFilter;
 import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.product.*;
-import com.company.kassa.dto.user.UserCreateRequest;
-import com.company.kassa.dto.user.UserPasswordUpdate;
-import com.company.kassa.dto.user.UserResponse;
-import com.company.kassa.dto.user.UserUpdateRequest;
+import com.company.kassa.dto.user.*;
 import com.company.kassa.models.*;
 import com.company.kassa.models.enums.MoneyType;
 import com.company.kassa.models.enums.YaTTUserRole;
@@ -163,6 +160,26 @@ public class YattAdminServiceImpl implements YattAdminService {
                 .status(201)
                 .message("ok")
                 .data(saved.getId())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public HttpApiResponse<UserProfileResponse> getProfile() {
+        AuthUser user = userSession.getCurrentUser();
+
+        UserProfileResponse response = UserProfileResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName() != null ? user.getFullName() : null)
+                .username(user.getUsername())
+                .role(userSession.getCurrentUserRole() != null ? userSession.getCurrentUserRole().name() : null)
+                .build();
+
+        return HttpApiResponse.<UserProfileResponse>builder()
+                .success(true)
+                .status(200)
+                .message("ok")
+                .data(response)
                 .build();
     }
 
@@ -348,8 +365,12 @@ public class YattAdminServiceImpl implements YattAdminService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public byte[] getDebitsExcel(DebitFilter filter) {
-        return new byte[0];
+    public byte[] getDebitsExcel(DebitFilter filter) throws IOException {
+        var spec = new DebtSpecification(filter);
+        List<Debt> debtList = debitRepository.findAll(spec);
+
+        return ExcelUtil.generateDebtExcel(debtList);
     }
 }

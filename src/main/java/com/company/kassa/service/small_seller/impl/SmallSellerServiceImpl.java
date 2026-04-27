@@ -11,6 +11,7 @@ import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.money.MoneyTransactionUpdate;
 import com.company.kassa.dto.product.*;
 import com.company.kassa.dto.user.UserPasswordUpdate;
+import com.company.kassa.dto.user.UserProfileResponse;
 import com.company.kassa.dto.user.UserResponse;
 import com.company.kassa.dto.user.UserUpdateRequest;
 import com.company.kassa.models.*;
@@ -130,6 +131,26 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .status(201)
                 .message("ok")
                 .data(saved.getId())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public HttpApiResponse<UserProfileResponse> getProfile() {
+        AuthUser user = userSession.getCurrentUser();
+
+        UserProfileResponse response = UserProfileResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName() != null ? user.getFullName() : null)
+                .username(user.getUsername())
+                .role(userSession.getCurrentUserRole() != null ? userSession.getCurrentUserRole().name() : null)
+                .build();
+
+        return HttpApiResponse.<UserProfileResponse>builder()
+                .success(true)
+                .status(200)
+                .message("ok")
+                .data(response)
                 .build();
     }
 

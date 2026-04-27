@@ -2,6 +2,7 @@ package com.company.kassa.utils;
 
 import com.company.kassa.dto.product.ProductResponse;
 import com.company.kassa.dto.product.ProductTransactionExcel;
+import com.company.kassa.models.Debt;
 import com.company.kassa.models.Kassa;
 import com.company.kassa.models.MoneyTransaction;
 import org.apache.poi.ss.usermodel.*;
@@ -185,6 +186,48 @@ public class ExcelUtil {
                 );
                 createCell(row, colNum++, transaction.getMoneyType());
                 createCell(row, colNum++, transaction.getIsCompleted());
+
+            }
+
+            //Auto-size ALL columns
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    public static byte[] generateDebtExcel(List<Debt> debtList)throws IOException {
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Debt History");
+
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle numberStyle = createNumberStyle(workbook);
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                    "From User", "Active Amount",
+                    "Non Active Amount"
+            };
+
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowNum = 1;
+            for (Debt debt : debtList) {
+                Row row = sheet.createRow(rowNum++);
+                int colNum = 0;
+
+                createCell(row, colNum++, debt.getFromUser().getFullName());
+                createDecimalCell(row, colNum++, debt.getActiveAmount(), numberStyle);
+                createDecimalCell(row, colNum++, debt.getNonActive(), numberStyle);
 
             }
 

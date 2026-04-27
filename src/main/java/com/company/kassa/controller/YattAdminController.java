@@ -12,10 +12,7 @@ import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.product.ProductTransactionFilter;
 import com.company.kassa.dto.product.ProductTransactionRequest;
 import com.company.kassa.dto.product.ProductTransactionResponse;
-import com.company.kassa.dto.user.UserCreateRequest;
-import com.company.kassa.dto.user.UserPasswordUpdate;
-import com.company.kassa.dto.user.UserResponse;
-import com.company.kassa.dto.user.UserUpdateRequest;
+import com.company.kassa.dto.user.*;
 import com.company.kassa.service.yattAdmin.YattAdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +70,11 @@ public class YattAdminController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<HttpApiResponse<UserProfileResponse>> getProfile() {
+        HttpApiResponse<UserProfileResponse> response = yattAdminService.getProfile();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
     @GetMapping("/kassa")
     public ResponseEntity<HttpApiResponse<Page<KassaResponse>>> getKassaFilter(
             @ModelAttribute KassaFilter kassaFilter,
