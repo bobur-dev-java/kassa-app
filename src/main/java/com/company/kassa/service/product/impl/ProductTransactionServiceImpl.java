@@ -87,16 +87,33 @@ public class ProductTransactionServiceImpl implements ProductTransactionService 
                     .collect(Collectors.toMap(Product::getId, p -> p));
 
             for (ProductUpdateRequest req : request.getProducts()) {
+
                 if (req.getId() != null && existingMap.containsKey(req.getId())) {
-                    // Update mavjud product
+                    // UPDATE
                     Product existing = existingMap.get(req.getId());
+
                     if (req.getPrice() != null)
                         existing.setPrice(req.getPrice());
                     if (req.getQuantity() != null)
                         existing.setQuantity(req.getQuantity());
                     if (req.getName() != null)
                         existing.setName(req.getName());
+
                     existing.calculateTotalPrice();
+
+                } else {
+                    // 🆕 CREATE (sizda yo‘q edi)
+                    Product newProduct = new Product();
+                    newProduct.setName(req.getName());
+                    newProduct.setPrice(req.getPrice());
+                    newProduct.setQuantity(req.getQuantity());
+                    newProduct.setProductTransaction(productTransaction);
+                    newProduct.setYattId(userSession.yattId());
+
+                    newProduct.calculateTotalPrice();
+
+                    productRepository.save(newProduct);
+                    existingProducts.add(newProduct); // 🔥 MUHIM
                 }
             }
 
