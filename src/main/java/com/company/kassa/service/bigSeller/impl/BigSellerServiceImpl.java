@@ -1,11 +1,8 @@
-package com.company.kassa.service.small_seller.impl;
+package com.company.kassa.service.bigSeller.impl;
 
 import com.company.kassa.config.security.UserSession;
 import com.company.kassa.dto.HttpApiResponse;
-import com.company.kassa.dto.kassa.KassaCreateRequest;
-import com.company.kassa.dto.kassa.KassaFilter;
-import com.company.kassa.dto.kassa.KassaResponse;
-import com.company.kassa.dto.kassa.KassaUpdateRequest;
+import com.company.kassa.dto.debit.DebitResponse;
 import com.company.kassa.dto.money.MoneyTransactionFilter;
 import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.money.MoneyTransactionUpdate;
@@ -15,19 +12,20 @@ import com.company.kassa.dto.user.UserProfileResponse;
 import com.company.kassa.dto.user.UserResponse;
 import com.company.kassa.dto.user.UserUpdateRequest;
 import com.company.kassa.models.*;
-import com.company.kassa.models.enums.MoneyType;
-import com.company.kassa.repository.*;
-import com.company.kassa.repository.specification.KassaSpecification;
+import com.company.kassa.repository.AuthUserRepository;
+import com.company.kassa.repository.MoneyTransactionRepository;
+import com.company.kassa.repository.ProductRepository;
+import com.company.kassa.repository.ProductTransactionRepository;
+import com.company.kassa.repository.specification.DebtSpecification;
 import com.company.kassa.repository.specification.MoneyTransactionSpecification;
 import com.company.kassa.repository.specification.ProductTransactionSpecification;
 import com.company.kassa.service.auth.mapper.AuthMapper;
-import com.company.kassa.service.kassa.KassaMapper;
+import com.company.kassa.service.bigSeller.BigSellerService;
 import com.company.kassa.service.money.MoneyTransactionService;
 import com.company.kassa.service.money.mapper.MoneyTransactionMapper;
 import com.company.kassa.service.product.ProductTransactionService;
 import com.company.kassa.service.product.mapper.ProductMapper;
 import com.company.kassa.service.product.mapper.ProductTransactionMapper;
-import com.company.kassa.service.small_seller.SmallSellerService;
 import com.company.kassa.utils.ExcelUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -49,32 +46,30 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class SmallSellerServiceImpl implements SmallSellerService {
-    private final ProductTransactionService productTransactionService;
-    private final MoneyTransactionService moneyTransactionService;
+public class BigSellerServiceImpl implements BigSellerService {
+
     private final UserSession userSession;
     private final AuthUserRepository authUserRepository;
-    private final KassaRepository kassaRepository;
+    private final ProductTransactionService productTransactionService;
     private final ProductMapper productMapper;
-    private final KassaMapper kassaMapper;
     private final AuthMapper authMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final ProductTransactionRepository productTransactionRepository;
     private final ProductTransactionMapper productTransactionMapper;
     private final ProductRepository productRepository;
+    private final ProductTransactionRepository productTransactionRepository;
     private final MoneyTransactionRepository moneyTransactionRepository;
     private final MoneyTransactionMapper moneyTransactionMapper;
-
+    private final MoneyTransactionService moneyTransactionService;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
-    public HttpApiResponse<Long> makeProductTransaction(Long fromUserId, Object o, LocalDate transactionDate, List<ProductTransactionRequest.ProductRequest> products) {
-        AuthUser fromUser = authUserRepository.findByIdAndYattIdAndDeletedAtIsNull(fromUserId, userSession.yattId())
+    public HttpApiResponse<Long> makeProductTransaction(Object o, Long toUserId, LocalDate transactionDate, List<ProductTransactionRequest.ProductRequest> products) {
+        AuthUser toUser = authUserRepository.findByIdAndYattIdAndDeletedAtIsNull(toUserId, userSession.yattId())
                 .orElseThrow(() -> new EntityNotFoundException("user.not.found"));
 
         ProductTransaction productTransaction = ProductTransaction.builder()
-                .fromUser(fromUser)
-                .toUser(userSession.getCurrentUser())
+                .fromUser(userSession.getCurrentUser())
+                .toUser(toUser)
                 .transactionDate(transactionDate)
                 .yattId(userSession.yattId())
                 .build();
@@ -90,51 +85,6 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .build();
     }
 
-    @Transactional
-    @Override
-    public HttpApiResponse<Long> makeMoneyTransaction(Object o, Long toUserId, BigDecimal amount, LocalDate transactionDate, MoneyType moneyType) {
-        AuthUser toUser = authUserRepository.findByIdAndYattIdAndDeletedAtIsNull(toUserId, userSession.yattId())
-                .orElseThrow(() -> new EntityNotFoundException("user.not.found"));
-
-        MoneyTransaction transaction = MoneyTransaction.builder()
-                .fromUser(userSession.getCurrentUser())
-                .toUser(toUser)
-                .amount(amount)
-                .transactionDate(transactionDate)
-                .moneyType(moneyType)
-                .yattId(userSession.yattId())
-                .build();
-
-        Long id = moneyTransactionService.makeMoneyTransaction(transaction);
-        return HttpApiResponse.<Long>builder()
-                .success(true)
-                .status(201)
-                .message("ok")
-                .data(id)
-                .build();
-    }
-
-    @Transactional
-    @Override
-    public HttpApiResponse<Long> kassaCreate(KassaCreateRequest request) {
-        Kassa kassa = kassaMapper.toEntity(request);
-        BigDecimal totalAmount =
-                kassa.getCard().add(kassa.getCash()).add(kassa.getTerminal()); // we can optimize
-        kassa.setYattId(userSession.yattId());
-        kassa.setOwner(userSession.getCurrentUser());
-        kassa.setTotaAmount(totalAmount);
-
-        Kassa saved = kassaRepository.save(kassa);
-
-        return HttpApiResponse.<Long>builder()
-                .success(true)
-                .status(201)
-                .message("ok")
-                .data(saved.getId())
-                .build();
-    }
-
-    @Transactional(readOnly = true)
     @Override
     public HttpApiResponse<UserProfileResponse> getProfile() {
         AuthUser user = userSession.getCurrentUser();
@@ -156,46 +106,43 @@ public class SmallSellerServiceImpl implements SmallSellerService {
 
     @Transactional(readOnly = true)
     @Override
-    public HttpApiResponse<List<UserResponse>> getAllUsersInYatt() {
-        List<AuthUser> users = authUserRepository.findAllByYattId(userSession.yattId());
+    public HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id) {
+        MoneyTransaction transaction = moneyTransactionRepository.findByIdAndYattIdAndToUserId(id, userSession.yattId(), userSession.userId())
+                .orElseThrow(() -> new EntityNotFoundException("money.transaction.not.found"));
 
-        return HttpApiResponse.<List<UserResponse>>builder()
-                .success(true)
+        MoneyTransactionResponse response = moneyTransactionMapper.mapToRes(transaction);
+
+        return HttpApiResponse.<MoneyTransactionResponse>builder()
                 .status(200)
+                .success(true)
                 .message("ok")
-                .data(users.stream().map(authMapper::mapToUserResponse).toList())
+                .data(response)
                 .build();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public HttpApiResponse<Page<KassaResponse>> getKassaFilter(KassaFilter kassaFilter, Pageable pageable) {
-        kassaFilter.setOwnerId(userSession.userId());
-        var spec = new KassaSpecification(kassaFilter);
-        Page<Kassa> kassaPage = kassaRepository.findAll(spec, pageable);
+    public HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id) {
+        ProductTransaction productTransaction = productTransactionRepository.findByIdAndYattIdAndFromUserId(id, userSession.yattId(), userSession.userId())
+                .orElseThrow(() -> new EntityNotFoundException("product.transaction.not.found"));
 
-        return HttpApiResponse.<Page<KassaResponse>>builder()
-                .success(true)
+        List<Product> products = productRepository.findAllByProductTransactionId(id, userSession.yattId());
+
+        ProductTransactionResponse response = productTransactionMapper.mapToRes(productTransaction);
+        response.setProducts(products.stream().map(productMapper::mapToResponse).toList());
+
+        return HttpApiResponse.<ProductTransactionResponse>builder()
                 .status(200)
+                .success(true)
                 .message("ok")
-                .data(kassaPage.map(kassaMapper::mapToResponse))
+                .data(response)
                 .build();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public byte[] getKassaFilterExcel(KassaFilter kassaFilter) throws IOException {
-        var spec = new KassaSpecification(kassaFilter);
-        List<Kassa> kassaList = kassaRepository.findAll(spec);
-
-        return ExcelUtil.generateKassaExcel(kassaList);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public HttpApiResponse<Page<ProductTransactionResponse>> getProductTransactions(
-            ProductTransactionFilter filter, Pageable pageable) {
-        filter.setToUserId(userSession.userId());
+    public HttpApiResponse<Page<ProductTransactionResponse>> getProductTransactions(ProductTransactionFilter filter, Pageable pageable) {
+        filter.setFromUserId(userSession.userId());
         var spec = new ProductTransactionSpecification(filter);
 
         Page<ProductTransaction> transactionPage =
@@ -234,7 +181,7 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Transactional(readOnly = true)
     @Override
     public byte[] getProductTransactionExcel(ProductTransactionFilter filter) throws IOException {
-        filter.setToUserId(userSession.userId());
+        filter.setFromUserId(userSession.userId());
         var spec = new ProductTransactionSpecification(filter);
 
         List<ProductTransaction> transactionList =
@@ -265,11 +212,10 @@ public class SmallSellerServiceImpl implements SmallSellerService {
         return ExcelUtil.generateProductTransactionHistoryExcel(responses);
     }
 
-
     @Transactional(readOnly = true)
     @Override
     public HttpApiResponse<Page<MoneyTransactionResponse>> getMoneyTransactions(MoneyTransactionFilter moneyTransactionFilter, Pageable pageable) {
-        moneyTransactionFilter.setFromUserId(userSession.userId());
+        moneyTransactionFilter.setToUserId(userSession.userId());
         var spec = new MoneyTransactionSpecification(moneyTransactionFilter);
         Page<MoneyTransaction> transactionPage = moneyTransactionRepository.findAll(spec, pageable);
 
@@ -281,10 +227,9 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public byte[] getMoneyTransactionExcel(MoneyTransactionFilter moneyTransactionFilter) throws IOException {
-        moneyTransactionFilter.setFromUserId(userSession.userId());
+        moneyTransactionFilter.setToUserId(userSession.userId());
         var spec = new MoneyTransactionSpecification(moneyTransactionFilter);
         List<MoneyTransaction> transactions = moneyTransactionRepository.findAll(spec);
 
@@ -293,51 +238,14 @@ public class SmallSellerServiceImpl implements SmallSellerService {
 
     @Transactional(readOnly = true)
     @Override
-    public HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id) {
-        MoneyTransaction transaction = moneyTransactionRepository.findByIdAndYattIdAndFromUserId(id, userSession.yattId(), userSession.userId())
-                .orElseThrow(() -> new EntityNotFoundException("money.transaction.not.found"));
+    public HttpApiResponse<List<UserResponse>> getAllUsersInYatt() {
+        List<AuthUser> users = authUserRepository.findAllByYattId(userSession.yattId());
 
-        MoneyTransactionResponse response = moneyTransactionMapper.mapToRes(transaction);
-
-        return HttpApiResponse.<MoneyTransactionResponse>builder()
-                .status(200)
-                .success(true)
-                .message("ok")
-                .data(response)
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id) {
-        ProductTransaction productTransaction = productTransactionRepository.findByIdAndYattIdAndToUserId(id, userSession.yattId(), userSession.userId())
-                .orElseThrow(() -> new EntityNotFoundException("product.transaction.not.found"));
-
-        List<Product> products = productRepository.findAllByProductTransactionId(id, userSession.yattId());
-
-        ProductTransactionResponse response = productTransactionMapper.mapToRes(productTransaction);
-        response.setProducts(products.stream().map(productMapper::mapToResponse).toList());
-
-        return HttpApiResponse.<ProductTransactionResponse>builder()
-                .status(200)
-                .success(true)
-                .message("ok")
-                .data(response)
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public HttpApiResponse<KassaResponse> getKassaById(Long id) {
-        Kassa kassa = kassaRepository.findByIdAndYattIdAndOwnerId(id, userSession.yattId(), userSession.userId())
-                .orElseThrow(() -> new EntityNotFoundException("kassa.not.found"));
-        KassaResponse response = kassaMapper.mapToResponse(kassa);
-
-        return HttpApiResponse.<KassaResponse>builder()
+        return HttpApiResponse.<List<UserResponse>>builder()
                 .success(true)
                 .status(200)
                 .message("ok")
-                .data(response)
+                .data(users.stream().map(authMapper::mapToUserResponse).toList())
                 .build();
     }
 
@@ -371,11 +279,6 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .message("ok")
                 .data(transaction.getId())
                 .build();
-    }
-
-    @Override
-    public HttpApiResponse<Long> updateKassaById(KassaUpdateRequest request, Long id) {
-        return null;
     }
 
     @Transactional
@@ -416,5 +319,15 @@ public class SmallSellerServiceImpl implements SmallSellerService {
                 .message("ok")
                 .data(true)
                 .build();
+    }
+
+    @Override
+    public HttpApiResponse<Page<DebitResponse>> getDebits(Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public byte[] getDebitsExcel() {
+        return new byte[0];
     }
 }

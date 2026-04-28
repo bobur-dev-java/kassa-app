@@ -15,4 +15,7 @@ public interface ProductTransactionRepository extends JpaRepository<ProductTrans
 
     @Query("select pt from ProductTransaction pt where pt.id=:id and pt.yattId=:yattId and pt.toUser.id=:userId and pt.deletedAt is null")
     Optional<ProductTransaction> findByIdAndYattIdAndToUserId(Long id, Long yattId, Long userId);
+
+    @Query("select pt from ProductTransaction pt where pt.id=:id and pt.yattId=:yattId and pt.fromUser.id=:userId and pt.deletedAt is null")
+    Optional<ProductTransaction> findByIdAndYattIdAndFromUserId(Long id, Long yattId, Long userId);
 }
