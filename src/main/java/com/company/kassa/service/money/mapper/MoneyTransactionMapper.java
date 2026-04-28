@@ -10,5 +10,7 @@ public abstract class MoneyTransactionMapper {
 
     @Mapping(target = "fromUserId",source = "transaction.fromUser.id")
     @Mapping(target = "toUserId",source = "transaction.toUser.id")
+    @Mapping(target = "toUserFullName",source = "transaction.toUser.fullName")
+    @Mapping(target = "fromUserFullName",source = "transaction.fromUser.fullName")
     public abstract MoneyTransactionResponse mapToRes(MoneyTransaction transaction);
 }

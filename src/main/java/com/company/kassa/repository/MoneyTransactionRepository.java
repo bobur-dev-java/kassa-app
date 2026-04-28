@@ -13,4 +13,7 @@ public interface MoneyTransactionRepository extends JpaRepository<MoneyTransacti
 
     @Query("select mt from MoneyTransaction mt where mt.id=:id and mt.yattId=:yattId and mt.deletedAt is null")
     Optional<MoneyTransaction> findByIdAndYattId(Long id, Long yattId);
+
+    @Query("select mt from MoneyTransaction mt where mt.id=:id and mt.yattId=:yattId and mt.deletedAt is null and mt.fromUser.id=:userId")
+    Optional<MoneyTransaction> findByIdAndYattIdAndFromUserId(Long id, Long yattId, Long userId);
 }

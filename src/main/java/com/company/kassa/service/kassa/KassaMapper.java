@@ -11,5 +11,7 @@ public abstract class KassaMapper {
 
     public abstract Kassa toEntity(KassaCreateRequest request);
 
+    @Mapping(target = "ownerName",source = "owner.fullName")
+    @Mapping(target = "ownerId",source = "owner.id")
     public abstract KassaResponse mapToResponse(Kassa kassa);
 }

@@ -11,6 +11,8 @@ import com.company.kassa.dto.money.MoneyTransactionFilter;
 import com.company.kassa.dto.money.MoneyTransactionResponse;
 import com.company.kassa.dto.product.*;
 import com.company.kassa.dto.user.*;
+import com.company.kassa.exceptions.ErrorCode;
+import com.company.kassa.exceptions.LocalizedApplicationException;
 import com.company.kassa.models.*;
 import com.company.kassa.models.enums.MoneyType;
 import com.company.kassa.models.enums.YaTTUserRole;
@@ -310,6 +312,53 @@ public class YattAdminServiceImpl implements YattAdminService {
                 .status(200)
                 .message("ok")
                 .data(users.stream().map(authMapper::mapToUserResponse).toList())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id) {
+        MoneyTransaction transaction = moneyTransactionRepository.findByIdAndYattId(id, userSession.yattId())
+                .orElseThrow(() -> new LocalizedApplicationException(ErrorCode.ENTITY_NOT_FOUND));
+
+        return HttpApiResponse.<MoneyTransactionResponse>builder()
+                .success(true)
+                .status(200)
+                .message("ok")
+                .data(moneyTransactionMapper.mapToRes(transaction))
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id) {
+        ProductTransaction productTransaction = productTransactionRepository.findByIdAndYattId(id, userSession.yattId())
+                .orElseThrow(() -> new LocalizedApplicationException(ErrorCode.ENTITY_NOT_FOUND));
+        List<Product> products = productRepository.findAllByProductTransactionId(id, userSession.yattId());
+
+        ProductTransactionResponse response = productTransactionMapper.mapToRes(productTransaction);
+        response.setProducts(products.stream().map(productMapper::mapToResponse).toList());
+
+        return HttpApiResponse.<ProductTransactionResponse>builder()
+                .success(true)
+                .status(200)
+                .message("ok")
+                .data(response)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public HttpApiResponse<KassaResponse> getKassaById(Long id) {
+        Kassa kassa = kassaRepository.findByIdAndYattId(id, userSession.yattId())
+                .orElseThrow(() -> new LocalizedApplicationException(ErrorCode.ENTITY_NOT_FOUND));
+        KassaResponse response = kassaMapper.mapToResponse(kassa);
+
+        return HttpApiResponse.<KassaResponse>builder()
+                .success(true)
+                .status(200)
+                .message("ok")
+                .data(response)
                 .build();
     }
 

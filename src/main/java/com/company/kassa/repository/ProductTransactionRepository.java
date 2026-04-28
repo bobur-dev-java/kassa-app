@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface ProductTransactionRepository extends JpaRepository<ProductTransaction, Long>, JpaSpecificationExecutor<ProductTransaction> {
     @Query("select pt from ProductTransaction pt where pt.id=:id and pt.yattId=:yattId and pt.deletedAt is null")
     Optional<ProductTransaction> findByIdAndYattId(Long id, Long yattId);
+
+    @Query("select pt from ProductTransaction pt where pt.id=:id and pt.yattId=:yattId and pt.toUser.id=:userId and pt.deletedAt is null")
+    Optional<ProductTransaction> findByIdAndYattIdAndToUserId(Long id, Long yattId, Long userId);
 }

@@ -294,7 +294,7 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Transactional(readOnly = true)
     @Override
     public HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id) {
-        MoneyTransaction transaction = moneyTransactionRepository.findByIdAndYattId(id, userSession.yattId())
+        MoneyTransaction transaction = moneyTransactionRepository.findByIdAndYattIdAndFromUserId(id, userSession.yattId(),userSession.userId())
                 .orElseThrow(() -> new EntityNotFoundException("money.transaction.not.found"));
 
         MoneyTransactionResponse response = moneyTransactionMapper.mapToRes(transaction);
@@ -310,10 +310,13 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Transactional(readOnly = true)
     @Override
     public HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id) {
-        ProductTransaction productTransaction = productTransactionRepository.findByIdAndYattId(id, userSession.yattId())
+        ProductTransaction productTransaction = productTransactionRepository.findByIdAndYattIdAndToUserId(id, userSession.yattId(), userSession.userId())
                 .orElseThrow(() -> new EntityNotFoundException("product.transaction.not.found"));
 
+        List<Product> products = productRepository.findAllByProductTransactionId(id, userSession.yattId());
+
         ProductTransactionResponse response = productTransactionMapper.mapToRes(productTransaction);
+        response.setProducts(products.stream().map(productMapper::mapToResponse).toList());
 
         return HttpApiResponse.<ProductTransactionResponse>builder()
                 .status(200)
@@ -326,7 +329,7 @@ public class SmallSellerServiceImpl implements SmallSellerService {
     @Transactional(readOnly = true)
     @Override
     public HttpApiResponse<KassaResponse> getKassaById(Long id) {
-        Kassa kassa = kassaRepository.findByIdAndYattId(id, userSession.yattId())
+        Kassa kassa = kassaRepository.findByIdAndYattIdAndOwnerId(id, userSession.yattId(),userSession.userId())
                 .orElseThrow(() -> new EntityNotFoundException("kassa.not.found"));
         KassaResponse response = kassaMapper.mapToResponse(kassa);
 

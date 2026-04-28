@@ -11,6 +11,8 @@ public abstract class ProductTransactionMapper {
 
     @Mapping(target = "toUserId", source = "transaction.toUser.id")
     @Mapping(target = "fromUserId", source = "transaction.fromUser.id")
+    @Mapping(target = "toUserFullName", source = "transaction.toUser.fullName")
+    @Mapping(target = "fromUserFullName", source = "transaction.fromUser.fullName")
     public abstract ProductTransactionResponse mapToRes(ProductTransaction transaction);
 
     @Mapping(target = "fromUserName",source = "transaction.fromUser.fullName")

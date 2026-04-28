@@ -13,7 +13,9 @@ import java.time.LocalDate;
 @Builder
 public class MoneyTransactionResponse implements Serializable {
     private Long id;
+    private String fromUserFullName;
     private Long fromUserId;
+    private String toUserFullName;
     private Long toUserId;
     private LocalDate transactionDate;
     private BigDecimal amount;

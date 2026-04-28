@@ -175,6 +175,29 @@ public class YattAdminController {
                 .body(response);
     }
 
+    @GetMapping("/money-transaction/{id}")
+    public ResponseEntity<HttpApiResponse<MoneyTransactionResponse>> getMoneyTransactionById(
+            @PathVariable Long id
+    ) {
+        HttpApiResponse<MoneyTransactionResponse> response = yattAdminService.getMoneyTransactionById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/product-transaction/{id}")
+    public ResponseEntity<HttpApiResponse<ProductTransactionResponse>> getProductTransactionById(
+            @PathVariable Long id
+    ) {
+        HttpApiResponse<ProductTransactionResponse> response = yattAdminService.getProductTransactionById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/kassa/{id}")
+    public ResponseEntity<HttpApiResponse<KassaResponse>> getKassaById(
+            @PathVariable Long id
+    ) {
+        HttpApiResponse<KassaResponse> response = yattAdminService.getKassaById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 
     @PutMapping("/profile")
     public ResponseEntity<HttpApiResponse<Boolean>> updateProfile(@RequestBody UserUpdateRequest request) {

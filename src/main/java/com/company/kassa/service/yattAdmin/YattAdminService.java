@@ -57,4 +57,10 @@ public interface YattAdminService {
     byte[] getDebitsExcel(DebitFilter filter) throws IOException;
 
     HttpApiResponse<UserProfileResponse> getProfile();
+
+    HttpApiResponse<MoneyTransactionResponse> getMoneyTransactionById(Long id);
+
+    HttpApiResponse<ProductTransactionResponse> getProductTransactionById(Long id);
+
+    HttpApiResponse<KassaResponse> getKassaById(Long id);
 }

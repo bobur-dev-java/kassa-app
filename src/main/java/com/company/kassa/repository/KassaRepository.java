@@ -13,4 +13,7 @@ public interface KassaRepository extends JpaRepository<Kassa, Long>, JpaSpecific
 
     @Query("select k from Kassa k where k.id=:id and k.deletedAt is null and k.yattId=:yattId")
     Optional<Kassa> findByIdAndYattId(Long id, Long yattId);
+
+    @Query("select k from Kassa k where k.id=:id and k.deletedAt is null and k.yattId=:yattId and k.owner.id=:ownerId")
+    Optional<Kassa> findByIdAndYattIdAndOwnerId(Long id, Long yattId, Long ownerId);
 }

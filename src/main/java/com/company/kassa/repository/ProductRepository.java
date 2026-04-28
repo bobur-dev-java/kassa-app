@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -17,4 +18,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select p from Product p where p.productTransaction.id=:id and p.yattId=:yattId and p.deletedAt is null")
     List<Product> getProductByProductTransaction(Long id, Long yattId);
+
+    @Query("select p from Product p where p.productTransaction.id=:transactionId and p.yattId=:yattId and p.deletedAt is null ")
+    List<Product> findAllByProductTransactionId(Long transactionId, Long yattId);
 }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Builder
 public class KassaResponse {
     private Long id;
+    private String ownerName;
     private Long ownerId;
     private BigDecimal terminal;
     private BigDecimal card;
